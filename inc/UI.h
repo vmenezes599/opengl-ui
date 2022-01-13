@@ -115,6 +115,7 @@ class UI {
 
     Run();
   }
+  UI(const UI& other) = delete;
   ~UI() {
     glfwDestroyWindow(window);
 
