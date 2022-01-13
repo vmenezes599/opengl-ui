@@ -14,7 +14,8 @@
 
 class UI {
  public:
-  UI() {
+  UI(GLubyte* texture = nullptr, int width = 2560, int height = 1440)
+      : texture(texture), width(width), height(height) {
     if (!glfwInit()) throw std::runtime_error("Failed to init glfw");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
@@ -123,34 +124,37 @@ class UI {
   void Run() {
     glUseProgram(program);
 
-    GLubyte* testTexture = new GLubyte[3 * width * height];
-    for (int i = 0; i < 3 * width * height; i += 3) {
-      if (i > 1.51 * width * height) {
-        testTexture[i + 0] = 255.0;
-        testTexture[i + 1] = 0.0;
-        testTexture[i + 2] = 0.0;
-      } else if (i < 1.49 * width * height) {
-        testTexture[i + 0] = 255.0;
-        testTexture[i + 1] = 255.0;
-        testTexture[i + 2] = 0.0;
-      } else {
-        testTexture[i + 0] = 255.0;
-        testTexture[i + 1] = 255.0;
-        testTexture[i + 2] = 255.0;
+    if (texture == nullptr) {
+      texture = new GLubyte[3 * width * height];
+      for (int i = 0; i < 3 * width * height; i += 3) {
+        if (i > 1.51 * width * height) {
+          texture[i + 0] = 255.0;
+          texture[i + 1] = 0.0;
+          texture[i + 2] = 0.0;
+        } else if (i < 1.49 * width * height) {
+          texture[i + 0] = 255.0;
+          texture[i + 1] = 255.0;
+          texture[i + 2] = 0.0;
+        } else {
+          texture[i + 0] = 255.0;
+          texture[i + 1] = 255.0;
+          texture[i + 2] = 255.0;
+        }
       }
     }
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+
+    unsigned int textureId;
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-                 GL_UNSIGNED_BYTE, testTexture);
+                 GL_UNSIGNED_BYTE, texture);
 
     // glActiveTexture(texture);
     GLint testTextureLocation = glGetUniformLocation(program, "testTexture");
     glUniform1i(testTextureLocation, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, textureId);
 
     while (!glfwWindowShouldClose(window)) {
       float ratio;
@@ -170,11 +174,12 @@ class UI {
       glfwSwapBuffers(window);
       glfwPollEvents();
     }
-    delete[] testTexture;
+    delete[] texture;
   }
 
  private:
-  int width = 2560, height = 1440;
+  GLubyte* texture = nullptr;
+  int width, height;
   GLFWwindow* window;
   GLuint vertex_buffer, vertex_shader, fragment_shader, program, VAO;
   GLint mvp_location, vpos_location, vcol_location;
