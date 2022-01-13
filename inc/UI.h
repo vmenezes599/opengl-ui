@@ -120,12 +120,17 @@ class UI {
     glfwDestroyWindow(window);
 
     glfwTerminate();
+
+    if (createdTexture) {
+      delete[] texture;
+    }
   }
 
   void Run() {
     glUseProgram(program);
 
     if (texture == nullptr) {
+      createdTexture = true;
       texture = new GLubyte[3 * width * height];
       for (int i = 0; i < 3 * width * height; i += 3) {
         if (i > 1.51 * width * height) {
@@ -175,11 +180,11 @@ class UI {
       glfwSwapBuffers(window);
       glfwPollEvents();
     }
-    delete[] texture;
   }
 
  private:
   GLubyte* texture = nullptr;
+  bool createdTexture = false;
   int width, height;
   GLFWwindow* window;
   GLuint vertex_buffer, vertex_shader, fragment_shader, program, VAO;
