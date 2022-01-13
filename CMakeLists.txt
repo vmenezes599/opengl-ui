@@ -9,16 +9,30 @@ project(opengl-ui)
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
-add_subdirectory(googletest)
+if(gtest_SOURCE_DIR)
+    message(STATUS "gtest variables already defined. Skipping.")
+else()
+    add_subdirectory(googletest)
+endif()
+
 include(CTest)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstandalone-debug") # clang debugger flag
 
 set(glad_src src/glad.c)
 
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} STATIC src/glad.c)
 
-target_include_directories(${PROJECT_NAME} inc)
+target_include_directories(${PROJECT_NAME} PUBLIC inc
+                                                  src)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_DL_LIBS}
+                                             gtest_main
+                                             OpenGL::GL
+                                             glfw)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_LIST_DIR}/inc/shaders/* ${CMAKE_BINARY_DIR})
 
 #####################################################
 ## Unit tests definitions

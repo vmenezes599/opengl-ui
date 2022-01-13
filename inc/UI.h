@@ -31,7 +31,7 @@ class UI {
 
     glEnable(GL_TEXTURE_2D);
 
-    std::ifstream vfile("../inc/shaders/vs.vert", std::ios::ate);
+    std::ifstream vfile("vs.vert", std::ios::ate);
     if (!vfile.is_open()) {
       throw std::runtime_error(
           "Failed to open file: "
@@ -46,7 +46,7 @@ class UI {
 
     vfile.close();
 
-    std::ifstream ffile("../inc/shaders/fs.frag", std::ios::ate);
+    std::ifstream ffile("fs.frag", std::ios::ate);
     if (!ffile.is_open()) {
       throw std::runtime_error(
           "Failed to open file: "
